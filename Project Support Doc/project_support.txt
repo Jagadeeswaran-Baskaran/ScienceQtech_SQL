@@ -1,0 +1,365 @@
+1.Create a database named employee, then import data_science_team.csv proj_table.csv and emp_record_table.csv into the employee database from the given resources.
+
+create database employee;
+use employee;
+
+create table emp_record
+(
+emp_id varchar(255) not null,
+first_name varchar(255) not null,
+last_name varchar(255) not null,
+gender varchar(255) not null,
+emp_role varchar(255) not null,
+dept varchar(255) not null,
+exp_of_emp int(20) not null,
+country varchar(255) not null,
+continent varchar(255) not null,
+salary int(20) not null,
+emp_rating int(20) not null,
+manager_id varchar(255) not null,
+project_id varchar(255)
+);
+
+desc emp_record_table;
+
+create table proj_table
+(
+project_id varchar(255) not null,
+proj_name varchar(255) not null,
+domain varchar(255) not null,
+start_date date,
+closure_date date,
+dev_qtr varchar(255) not null,
+proj_status varchar(255) not null,
+primary key(project_id)
+);
+
+create table data_science_team
+(
+emp_id varchar(255) not null,
+first_name varchar(255) not null,
+last_name varchar(255) not null,
+gender varchar(255) not null,
+emp_role varchar(255) not null,
+emp_dept varchar(255) not null,
+emp_exp int(20) not null,
+country varchar(255) not null,
+continent varchar(255) not null
+);
+
+2.Create an ER diagram for the given employee database.
+
+3.Write a query to fetch EMP_ID, FIRST_NAME, LAST_NAME, GENDER, and DEPARTMENT from the employee record table, 
+and make a list of employees and details of their department.
+
+select EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPT from emp_record_table;
+
+E001	Arthur	Black	M	ALL
+E005	Eric	Hoffman	M	FINANCE
+E010	William	Butler	M	AUTOMOTIVE
+E052	Dianna	Wilson	F	HEALTHCARE
+E057	Dorothy	Wilson	F	HEALTHCARE
+E083	Patrick	Voltz	M	HEALTHCARE
+E103	Emily	Grove	F	FINANCE
+E204	Karene	Nowak	F	AUTOMOTIVE
+E245	Nian	Zhen	M	RETAIL
+E260	Roy	Collins	M	RETAIL
+E403	Steve	Hoffman	M	FINANCE
+E428	Pete	Allen	M	AUTOMOTIVE
+E478	David	Smith	M	RETAIL
+E505	Chad	Wilson	M	HEALTHCARE
+E532	Claire	Brennan	F	AUTOMOTIVE
+E583	Janet	Hale	F	RETAIL
+E612	Tracy	Norris	F	RETAIL
+E620	Katrina	Allen	F	RETAIL
+E640	Jenifer	Jhones	F	RETAIL
+
+4. Write a query to fetch EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPARTMENT, and EMP_RATING if the EMP_RATING is: 
+
+->less than two
+
+select EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPT, EMP_RATING from emp_record_table where EMP_RATING < 2;
+
+E057	Dorothy	Wilson	F	HEALTHCARE	1
+E532	Claire	Brennan	F	AUTOMOTIVE	1
+E620	Katrina	Allen	F	RETAIL	1
+
+->greater than four
+
+select EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPT, EMP_RATING from emp_record_table where EMP_RATING > 4;
+
+E001	Arthur	Black	M	ALL	5
+E052	Dianna	Wilson	F	HEALTHCARE	5
+E083	Patrick	Voltz	M	HEALTHCARE	5
+E204	Karene	Nowak	F	AUTOMOTIVE	5
+ 
+->between two and four
+
+select EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPT, EMP_RATING from emp_record_table where EMP_RATING > 2 and EMP_RATING < 4;
+
+E005	Eric	Hoffman	M	FINANCE	3
+E260	Roy	Collins	M	RETAIL	3
+E403	Steve	Hoffman	M	FINANCE	3
+
+5.Write a query to concatenate the FIRST_NAME and the LAST_NAME of employees in the Finance department from the employee table 
+and then give the resultant column alias as NAME.
+
+select *, concat(FIRST_NAME," ",LAST_NAME) as FULL_NAME from emp_record_table where DEPT = 'FINANCE' ;
+
+E005	Eric	Hoffman	M	LEAD DATA SCIENTIST	FINANCE	11	USA	NORTH AMERICA	8500	3	E103	P105	Eric Hoffman
+E103	Emily	Grove	F	MANAGER		FINANCE	14	CANADA	NORTH AMERICA	10500	4	E001		Emily Grove
+E403	Steve	Hoffman	M	ASSOCIATE DATA SCIENTIST	FINANCE	4	USA	NORTH AMERICA	5000	3	E103	P105	Steve Hoffman
+
+6.Write a query to list only those employees who have someone reporting to them. Also, show the number of reporters (including the President).
+
+select count(distinct MANAGER_ID) as Num_of_reporters from emp_record_table;
+select Concat(FIRST_NAME," ",LAST_NAME) as EMP_NAME, MANAGER_ID, count(MANAGER_ID) AS Num_of_emp_reporting from emp_record_table GROUP BY MANAGER_ID ORDER BY Num_of_emp_reporting DESC;
+
+Patrick Voltz	E001	5
+William Butler	E428	3
+Dianna Wilson	E083	3
+Nian Zhen		E583	3
+Eric Hoffman	E103	2
+Katrina Allen	E612	2
+Arthur Black		0
+
+Not working--> SELECT FIRST_NAME, LAST_NAME, MANAGER_ID.temptable, Num_of_emp_reporting.TEMPTABLE FROM emp_record_table RIGHT JOIN (select MANAGER_ID, count(MANAGER_ID) AS Num_of_emp_reporting from emp_record_table GROUP BY MANAGER_ID) TEMPTABLE ON MANAGER_ID.TEMPTABLE=MANAGER_ID.emp_record_table;
+
+7.Write a query to list down all the employees from the healthcare and finance departments using union. Take data from the employee record table.
+
+select concat(FIRST_NAME, " ", LAST_NAME) as FULL_NAME, DEPT from emp_record_table where DEPT = 'HEALTHCARE'
+union
+select concat(FIRST_NAME, " ", LAST_NAME) as FULL_NAME, DEPT from emp_record_table where DEPT = 'FINANCE';
+
+Dianna Wilson	HEALTHCARE
+Dorothy Wilson	HEALTHCARE
+Patrick Voltz	HEALTHCARE
+Chad Wilson	HEALTHCARE
+Eric Hoffman	FINANCE
+Emily Grove	FINANCE
+Steve Hoffman	FINANCE 
+
+8.Write a query to list down employee details such as EMP_ID, FIRST_NAME, LAST_NAME, ROLE, DEPARTMENT, and EMP_RATING grouped by dept. Also include the respective employee rating along with the max emp rating for the department.
+
+select EMP_ID, FIRST_NAME, LAST_NAME, ROLE, DEPT, EMP_RATING from emp_record_table group by DEPT;
+
+select  EMP_ID, concat(FIRST_NAME," ",LAST_NAME) AS FULL_NAME, ROLE, DEPT, max(EMP_RATING) as max_emp_rating from (select EMP_ID, FIRST_NAME, LAST_NAME, ROLE, DEPT, EMP_RATING from emp_record_table order by DEPT) temptable group by DEPT;
+
+E001	Arthur Black	PRESIDENT		ALL		5
+E005	Eric Hoffman	LEAD DATA SCIENTIST	FINANCE		4
+E010	William Butler	LEAD DATA SCIENTIST	AUTOMOTIVE	5
+E052	Dianna Wilson	SENIOR DATA SCIENTIST	HEALTHCARE	5
+E245	Nian Zhen		SENIOR DATA SCIENTIST	RETAIL		4
+
+9.Write a query to calculate the minimum and the maximum salary of the employees in each role. Take data from the employee record table.
+
+select ROLE, min(SALARY) as Minimum_salary, max(SALARY) as Maximum_salary from emp_record_table group by ROLE;
+
+PRESIDENT	16500	16500
+LEAD DATA SCIENTIST	8500	9000
+SENIOR DATA SCIENTIST	5500	7700
+MANAGER	8500	11000
+ASSOCIATE DATA SCIENTIST	4000	5000
+JUNIOR DATA SCIENTIST	2800	3000
+
+
+10.Write a query to assign ranks to each employee based on their experience. Take data from the employee record table.
+
+ select EMP_ID, CONCAT(FIRST_NAME," ", LAST_NAME) AS EMP_NAME, ROLE, DEPT, DENSE_RANK() OVER (order by EXP desc) as Rank_of_emp from emp_record_table;
+
+E001	Arthur Black	PRESIDENT	ALL	1
+E083	Patrick Voltz	MANAGER	HEALTHCARE	2
+E103	Emily Grove	MANAGER	FINANCE	3
+E428	Pete Allen	MANAGER	AUTOMOTIVE	3
+E583	Janet Hale	MANAGER	RETAIL	3
+E612	Tracy Norris	MANAGER	RETAIL	4
+E010	William Butler	LEAD DATA SCIENTIST	AUTOMOTIVE	5
+E005	Eric Hoffman	LEAD DATA SCIENTIST	FINANCE	6
+E057	Dorothy Wilson	SENIOR DATA SCIENTIST	HEALTHCARE	7
+E204	Karene Nowak	SENIOR DATA SCIENTIST	AUTOMOTIVE	8
+E260	Roy Collins	SENIOR DATA SCIENTIST	RETAIL	9
+E052	Dianna Wilson	SENIOR DATA SCIENTIST	HEALTHCARE	10
+E245	Nian Zhen	SENIOR DATA SCIENTIST	RETAIL	10
+E505	Chad Wilson	ASSOCIATE DATA SCIENTIST	HEALTHCARE	11
+E403	Steve Hoffman	ASSOCIATE DATA SCIENTIST	FINANCE	12
+E478	David Smith	ASSOCIATE DATA SCIENTIST	RETAIL	13
+E532	Claire Brennan	ASSOCIATE DATA SCIENTIST	AUTOMOTIVE	13
+E620	Katrina Allen	JUNIOR DATA SCIENTIST	RETAIL	14
+E640	Jenifer Jhones	JUNIOR DATA SCIENTIST	RETAIL	15
+
+
+11.Write a query to create a view that displays employees in various countries whose salary is more than six thousand. Take data from the employee record table.
+
+create view salary_more as select EMP_ID, concat(FIRST_NAME," ", LAST_NAME) as FULL_NAME, ROLE, DEPT, COUNTRY, SALARY from emp_record_table where salary > 6000 order by SALARY;
+select * from salary_more;
+
+E245	Nian Zhen	SENIOR DATA SCIENTIST	RETAIL	CHINA	6500
+E260	Roy Collins	SENIOR DATA SCIENTIST	RETAIL	INDIA	7000
+E204	Karene Nowak	SENIOR DATA SCIENTIST	AUTOMOTIVE	GERMANY	7500
+E057	Dorothy Wilson	SENIOR DATA SCIENTIST	HEALTHCARE	USA	7700
+E005	Eric Hoffman	LEAD DATA SCIENTIST	FINANCE	USA	8500
+E612	Tracy Norris	MANAGER	RETAIL	INDIA	8500
+E010	William Butler	LEAD DATA SCIENTIST	AUTOMOTIVE	FRANCE	9000
+E083	Patrick Voltz	MANAGER	HEALTHCARE	USA	9500
+E583	Janet Hale	MANAGER	RETAIL	COLOMBIA	10000
+E103	Emily Grove	MANAGER	FINANCE	CANADA	10500
+E428	Pete Allen	MANAGER	AUTOMOTIVE	GERMANY	11000
+E001	Arthur Black	PRESIDENT	ALL	USA	16500
+
+
+12.Write a nested query to find employees with experience of more than ten years. Take data from the employee record table.
+
+select * from (select EMP_ID, concat(FIRST_NAME," ", LAST_NAME) as FULL_NAME, ROLE, DEPT, EXP, SALARY from emp_record_table) temptable where EXP > 10 order by EXP desc;
+
+E001	Arthur Black	PRESIDENT	ALL	20	16500
+E083	Patrick Voltz	MANAGER	HEALTHCARE	15	9500
+E103	Emily Grove	MANAGER	FINANCE	14	10500
+E428	Pete Allen	MANAGER	AUTOMOTIVE	14	11000
+E583	Janet Hale	MANAGER	RETAIL	14	10000
+E612	Tracy Norris	MANAGER	RETAIL	13	8500
+E010	William Butler	LEAD DATA SCIENTIST	AUTOMOTIVE	12	9000
+E005	Eric Hoffman	LEAD DATA SCIENTIST	FINANCE	11	8500
+
+
+13.Write a query to create a stored procedure to retrieve the details of the employees whose experience is more than three years. Take data from the employee record table.
+
+STORED PROCEDURE
+==================
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Employee_exp`(in EXP int)
+BEGIN
+select * from emp_record_table where emp_record_table.EXP > EXP order by emp_record_table.EXP;
+END
+
+call Employee_exp(3);
+
+E403	Steve	Hoffman	M	ASSOCIATE DATA SCIENTIST	FINANCE	4	USA	NORTH AMERICA	5000	3	E103	P105
+E505	Chad	Wilson	M	ASSOCIATE DATA SCIENTIST	HEALTHCARE	5	CANADA	NORTH AMERICA	5000	2	E083	P103
+E052	Dianna	Wilson	F	SENIOR DATA SCIENTIST	HEALTHCARE	6	CANADA	NORTH AMERICA	5500	5	E083	P103
+E245	Nian	Zhen	M	SENIOR DATA SCIENTIST	RETAIL	6	CHINA	ASIA	6500	2	E583	P109
+E260	Roy	Collins	M	SENIOR DATA SCIENTIST	RETAIL	7	INDIA	ASIA	7000	3	E583	NA
+E204	Karene	Nowak	F	SENIOR DATA SCIENTIST	AUTOMOTIVE	8	GERMANY	EUROPE	7500	5	E428	P204
+E057	Dorothy	Wilson	F	SENIOR DATA SCIENTIST	HEALTHCARE	9	USA	NORTH AMERICA	7700	1	E083	P302
+E005	Eric	Hoffman	M	LEAD DATA SCIENTIST	FINANCE	11	USA	NORTH AMERICA	8500	3	E103	P105
+E010	William	Butler	M	LEAD DATA SCIENTIST	AUTOMOTIVE	12	FRANCE	EUROPE	9000	2	E428	P204
+E612	Tracy	Norris	F	MANAGER	RETAIL	13	INDIA	ASIA	8500	4	E001	
+E103	Emily	Grove	F	MANAGER	FINANCE	14	CANADA	NORTH AMERICA	10500	4	E001	
+E428	Pete	Allen	M	MANAGER	AUTOMOTIVE	14	GERMANY	EUROPE	11000	4	E001	
+E583	Janet	Hale	F	MANAGER	RETAIL	14	COLOMBIA	SOUTH AMERICA	10000	2	E001	
+E083	Patrick	Voltz	M	MANAGER	HEALTHCARE	15	USA	NORTH AMERICA	9500	5	E001	
+E001	Arthur	Black	M	PRESIDENT	ALL	20	USA	NORTH AMERICA	16500	5		
+
+14.Write a query using stored functions in the project table to check whether the job profile assigned to each employee 
+in the data science team matches the organization’s set standard.
+
+The standard being:
+
+For an employee with experience less than or equal to 2 years assign 'JUNIOR DATA SCIENTIST',
+
+For an employee with the experience of 2 to 5 years assign 'ASSOCIATE DATA SCIENTIST',
+
+For an employee with the experience of 5 to 10 years assign 'SENIOR DATA SCIENTIST',
+
+For an employee with the experience of 10 to 12 years assign 'LEAD DATA SCIENTIST',
+
+For an employee with the experience of 12 to 16 years assign 'MANAGER'.
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Emp_role`(OUT Employee_ROLE varchar(255))
+BEGIN
+DECLARE Employee_ROLE VARCHAR(40);
+IF EXP>12 AND 16 THEN
+SET Employee_ROLE="MANAGER";
+ELSEIF EXP>10 AND 12 THEN
+SET Employee_ROLE ="LEAD DATA SCIENTIST";
+ELSEIF EXP>5 AND 10 THEN
+SET Employee_ROLE ="SENIOR DATA SCIENTIST";
+ELSEIF EXP>2 AND 5 THEN
+SET Employee_ROLE ="ASSOCIATE DATA SCIENTIST";
+ELSEIF EXP<=2 THEN
+SET Employee_ROLE ="JUNIOR DATA SCIENTIST";
+END IF;
+END
+
+SELECT emp_exp,Employee_ROLE(emp_exp) as Employee_role
+FROM data_science_team;
+
+11	LEAD DATA SCIENTIST
+12	LEAD DATA SCIENTIST
+6	SENIOR DATA SCIENTIST
+9	SENIOR DATA SCIENTIST
+8	SENIOR DATA SCIENTIST
+6	SENIOR DATA SCIENTIST
+7	SENIOR DATA SCIENTIST
+4	ASSOCIATE DATA SCIENTIST
+3	ASSOCIATE DATA SCIENTIST
+5	ASSOCIATE DATA SCIENTIST
+3	ASSOCIATE DATA SCIENTIST
+2	JUNIOR DATA SCIENTIST
+1	JUNIOR DATA SCIENTIST
+
+15.Create an index to improve the cost and performance of the query to find the employee whose FIRST_NAME is ‘Eric’ in the employee table 
+after checking the execution plan.
+
+alter table emp_record_table modify column FIRST_NAME varchar(255); 
+create index first_name_index on emp_record_table(FIRST_NAME);
+show index from emp_record_table;
+select * from emp_record_table where FIRST_NAME = 'Eric';
+
+Drop index first_name_index from emp_record_table;
+
+E005	Eric	Hoffman	M	LEAD DATA SCIENTIST	FINANCE	11	USA	NORTH AMERICA	8500	3	E103	P105
+
+
+16.Write a query to calculate the bonus for all the employees, based on their ratings and salaries (Use the formula: 5% of salary * employee rating).
+
+select concat(FIRST_NAME," ", LAST_NAME) as Emp_name, SALARY, EMP_RATING, (((5/100) * SALARY) * EMP_RATING) as Bonus from emp_record_table;
+
+Arthur Black	16500	5	4125.0000
+Eric Hoffman	8500	3	1275.0000
+William Butler	9000	2	900.0000
+Dianna Wilson	5500	5	1375.0000
+Dorothy Wilson	7700	1	385.0000
+Patrick Voltz	9500	5	2375.0000
+Emily Grove	10500	4	2100.0000
+Karene Nowak	7500	5	1875.0000
+Nian Zhen	6500	2	650.0000
+Roy Collins	7000	3	1050.0000
+Steve Hoffman	5000	3	750.0000
+Pete Allen	11000	4	2200.0000
+David Smith	4000	4	800.0000
+Chad Wilson	5000	2	500.0000
+Claire Brennan	4300	1	215.0000
+Janet Hale	10000	2	1000.0000
+Tracy Norris	8500	4	1700.0000
+Katrina Allen	3000	1	150.0000
+Jenifer Jhones	2800	4	560.0000
+
+17.Write a query to calculate the average salary distribution based on the continent and country. Take data from the employee record table.
+
+select CONTINENT, COUNTRY, Avg(SALARY) as Average_Salary from emp_record_table group by CONTINENT, COUNTRY;
+
+NORTH AMERICA	USA	9440.0000
+EUROPE	FRANCE	9000.0000
+NORTH AMERICA	CANADA	7000.0000
+EUROPE	GERMANY	7600.0000
+ASIA	CHINA	6500.0000
+ASIA	INDIA	6166.6667
+SOUTH AMERICA	COLOMBIA	5600.0000
+
+
+
+
+alter table proj_table modify PROJECT_ID varchar(255);
+alter table proj_table add constraint primary key (PROJECT_ID(255));
+alter table emp_record_table modify PROJ_ID varchar(255);
+alter table emp_record_table add constraint proj_foreign_key foreign key (PROJ_ID) references proj_table (PROJECT_ID);
+alter table data_science_team add constraint foreign_key foreign key (emp_id) references emp_record_table (EMP_ID);
+show index in emp_record_table;
+alter table emp_record_table modify EMP_ID varchar(255);
+desc data_science_team;
+desc emp_record_table;
+desc proj_table;
+select * from emp_record_table;
+select * from proj_table;
+
+
+
